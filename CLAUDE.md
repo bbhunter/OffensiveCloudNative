@@ -27,3 +27,5 @@ Several entries (e.g. `Cloud/Linode/stackscript_*.md`) embed provisioning script
 * When a step should run as a specific non-root user (e.g. a `recon` user), use `su - <user> -c "..."` for one-liners or `su - <user> <<'EOF' ... EOF` for multi-line blocks — don't rely on bare `su <user>` or assume a later command "inherits" a user switch.
 * Quote heredoc delimiters (`<<'EOF'`) when the block should NOT have variables expanded by the outer (root) shell before being handed to the sub-shell.
 * Prefer `mkdir -p` for idempotency, and guard steps that depend on a prior build/install succeeding (e.g. check a binary exists before `cp`-ing it into a system path) rather than assuming success.
+* When a step depends on a background service (e.g. `docker`) that was just installed via `apt`, explicitly `systemctl enable --now` it and wait until it's actually responding (e.g. `until docker info >/dev/null 2>&1; do sleep 1; done`) before using it — don't assume the daemon is ready immediately after install.
+* `chmod +x` any script the StackScript generates (e.g. via `echo >`) if it's meant to be run directly later.
