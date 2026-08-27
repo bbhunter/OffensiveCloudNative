@@ -24,7 +24,7 @@
 # log output to file
 exec &> $HOME/install.out
 
-# Update all packages
+# Update system packages
 
 export DEBIAN_FRONTEND=noninteractive
 apt update && apt upgrade -y
@@ -47,7 +47,7 @@ echo \
 apt-get update
 apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
 
-# Apt installs
+# Apt package installs
 apt install mosh make nmap ncrack libpcap-dev gcc python3-pip python3-venv -y
 
 # Add recon user
@@ -55,7 +55,7 @@ apt install mosh make nmap ncrack libpcap-dev gcc python3-pip python3-venv -y
 useradd -m -s /bin/bash recon
 usermod -aG sudo,docker recon
 
-# Setup directories
+# Setup home directories
 su - recon -c "mkdir -p /home/recon/Data /home/recon/Repos /home/recon/Wordlists /home/recon/Scripts"
 
 # Add Scripts
@@ -69,8 +69,8 @@ EOF
 
 wget https://go.dev/dl/go1.26.6.linux-amd64.tar.gz
 rm -rf /usr/local/go && tar -C /usr/local -xzf go1.26.6.linux-amd64.tar.gz
-echo export PATH=$PATH:/usr/local/go/bin:go/bin >> ~/.profile
-echo export PATH=$PATH:/usr/local/go/bin:go/bin >> /home/recon/.profile
+echo 'export PATH=$PATH:/usr/local/go/bin:go/bin' >> ~/.profile
+echo 'export PATH=$PATH:/usr/local/go/bin:go/bin' >> /home/recon/.profile
 source ~/.profile
 
 # Install docker recon tools
@@ -80,7 +80,7 @@ docker pull sneakerhax/wordlists
 docker run -d -v /home/recon/Wordlists:/wordlists sneakerhax/wordlists
 EOF
 
-# Install repos
+# Clone repos
 
 su - recon <<'EOF'
 git clone https://github.com/trickest/resolvers /home/recon/Repos/resolvers
@@ -101,9 +101,10 @@ fi
 su - recon <<'EOF'
 export CGO_ENABLED=1
 go install -v github.com/projectdiscovery/pdtm/cmd/pdtm@latest
+go install github.com/tailscale/tailcat/cmd/tailcat@latest
 EOF
-# echo source ~/.bashrc >> ~/.profile
-# source ~/.profile
+
+
 
 # Install brew
 
@@ -114,8 +115,8 @@ chown recon:recon /home/linuxbrew/.linuxbrew
 su - recon -c '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
 
 su - recon <<'EOF'
-echo >> /home/recon/.bashrc
-echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"' >> /home/recon/.bashrc
+echo >> /home/recon/.profile
+echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"' >> /home/recon/.profile
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"
 brew install claude-cli copilot-cli
 EOF

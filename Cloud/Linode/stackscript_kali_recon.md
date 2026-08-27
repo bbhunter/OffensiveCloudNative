@@ -23,36 +23,38 @@
 
 # Update all packages
 export DEBIAN_FRONTEND=noninteractive
-sudo apt update && apt upgrade -y
+apt update && apt upgrade -y
 
 # Apt installs
 apt install mosh nmap ncrack docker.io golang-go libpcap-dev massdns -y
 
 # Add gopath
 echo export GOPATH=$HOME/go >> ~/.zshrc
-source ~/.zshrc
 echo export PATH=$PATH:$GOPATH/bin >> ~/.zshrc
 source ~/.zshrc
 
 # Setup directories
-mkdir $HOME/Data $HOME/Repos $HOME/Wordlists $HOME/Scripts
+mkdir -p $HOME/Data $HOME/Repos $HOME/Wordlists $HOME/Scripts
 
 # Add Scripts
 echo "hostnamectl set-hostname \$1" > $HOME/Scripts/set-hostname.sh
 echo "exec bash" >> $HOME/Scripts/set-hostname.sh
+chmod +x $HOME/Scripts/set-hostname.sh
 
 # Install docker recon tools
+systemctl enable --now docker
+until docker info >/dev/null 2>&1; do sleep 1; done
 docker pull sneakerhax/wordlists:latest
 docker run -d -v $HOME/Wordlists:/wordlists sneakerhax/wordlists
 
 # Install repos
-git clone https://github.com/trickest/resolvers $HOME/Repos/resolvers
-git clone https://github.com/sneakerhax/Arsenal.git $HOME/Repos/Arsenal
-git clone https://github.com/sneakerhax/Containers.git $HOME/Repos/Containers
-git clone https://github.com/sneakerhax/Ultra-Recon $HOME/Repos/Ultra-Recon
+git clone https://github.com/trickest/resolvers $HOME/Repos/resolvers || echo "failed to clone resolvers"
+git clone https://github.com/sneakerhax/Arsenal.git $HOME/Repos/Arsenal || echo "failed to clone Arsenal"
+git clone https://github.com/sneakerhax/Containers.git $HOME/Repos/Containers || echo "failed to clone Containers"
+git clone https://github.com/sneakerhax/Ultra-Recon $HOME/Repos/Ultra-Recon || echo "failed to clone Ultra-Recon"
 
 # Install recon tools
-go install -v github.com/projectdiscovery/pdtm/cmd/pdtm@latest
+go install -v github.com/projectdiscovery/pdtm/cmd/pdtm@latest || echo "failed to install pdtm"
 ```
 
 ## Using the StackScript on deployment
